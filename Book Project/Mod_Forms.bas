@@ -4,28 +4,21 @@ Public Property Get ProjectDirPath() As String
     ProjectDirPath = App.Path & IIf(Right$(App.Path, 1) <> "\", "\", "")
 End Property
 
-Public Sub InfoMsgBox(Str_Msg As String)
-    LoadMsgBox Str_Msg, "info"
+Public Sub InfoMsg(Str_Msg As String)
+    MsgBox Str_Msg, vbInformation, ""
 End Sub
 
-Public Sub WarningMsgBox(Str_Msg As String)
-    LoadMsgBox Str_Msg, "warning"
+Public Sub WarningMsg(Str_Msg As String)
+    MsgBox Str_Msg, vbExclamation, ""
 End Sub
 
-Public Sub ErrorMsgBox(Str_Msg As String)
-    LoadMsgBox Str_Msg, "error"
+Public Sub ErrorMsg(Str_Msg As String)
+    MsgBox Str_Msg, vbCritical, ""
 End Sub
 
-Public Sub QuestionMsgBox(Str_Msg As String)
-    LoadMsgBox Str_Msg, "question", True
-End Sub
-
-Private Sub LoadMsgBox(Str_Msg As String, Str_PictureName As String, Optional Bol_IsQuestionMsg As Boolean = False)
-    MessageBox.IsQuestionMsg = Bol_IsQuestionMsg
-    MessageBox.Img_MsgType.Picture = LoadPicture(ProjectDirPath & "Icons\" & Str_PictureName & ".ico")
-    MessageBox.Lbl_Msg = Str_Msg
-    MessageBox.Show 1
-End Sub
+Public Function QuestionMsg(Str_Msg As String) As VbMsgBoxResult
+    QuestionMsgBox = MsgBox(Str_Msg, vbYesNo + vbQuestion, "")
+End Function
 
 Public Sub Sendkeys(text As Variant, Optional wait As Boolean = False)
    Dim WshShell As Object
@@ -57,4 +50,11 @@ Public Sub TreatShortcutKeys(FormObj As Form, KeyCode As Integer, Shift As Integ
     
 ErrorHandler:
     Exit Sub
+End Sub
+
+Public Sub CenterForm(FormObj As Form, FormWidth As Integer, FormHeight As Integer)
+    FormObj.Width = FormWidth
+    FormObj.Height = FormHeight
+    FormObj.Left = (MDIMain.ScaleWidth - FormObj.Width) / 2
+    FormObj.Top = (MDIMain.ScaleHeight - FormObj.Height) / 2
 End Sub

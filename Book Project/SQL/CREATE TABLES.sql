@@ -1,17 +1,16 @@
-CREATE DATABASE BooksDB;
 USE BooksDB;
 
 CREATE TABLE Genres
 (
 	Id int IDENTITY(1, 1) NOT NULL,
-	Name nvarchar(100) NOT NULL CONSTRAINT DF_Genres_Name DEFAULT '',
+	Name nvarchar(40) NOT NULL CONSTRAINT DF_Genres_Name DEFAULT '',
 	CONSTRAINT PK_Genres PRIMARY KEY CLUSTERED (Id),
 )
 
 CREATE TABLE Authors
 (
 	Id int IDENTITY(1, 1) NOT NULL,
-	Name nvarchar(100) NOT NULL CONSTRAINT DF_Authors_Name DEFAULT '',
+	Name nvarchar(40) NOT NULL CONSTRAINT DF_Authors_Name DEFAULT '',
 	Picture image,
 	CONSTRAINT PK_Authors PRIMARY KEY CLUSTERED (Id),
 )
@@ -19,7 +18,7 @@ CREATE TABLE Authors
 CREATE TABLE Books
 (
 	Id int IDENTITY(1, 1) NOT NULL,
-	Name nvarchar(100) NOT NULL CONSTRAINT DF_Books_Name DEFAULT '',
+	Name nvarchar(40) NOT NULL CONSTRAINT DF_Books_Name DEFAULT '',
 	Price FLOAT NOT NULL CONSTRAINT DF_Books_Price DEFAULT 0,
 	AuthorId INT NOT NULL,
 	GenreId INT NOT NULL,
