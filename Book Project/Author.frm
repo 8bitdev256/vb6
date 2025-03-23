@@ -138,6 +138,7 @@ Private Sub Cmd_Cancel_Click()
 End Sub
 
 Private Sub Cmd_ChangePic_Click()
+    CommonDialog1.FileName = ""
     CommonDialog1.Filter = "Images (*.bmp)|*.bmp"
     CommonDialog1.DefaultExt = "txt"
     CommonDialog1.DialogTitle = "Select File"
@@ -149,19 +150,7 @@ Private Sub Cmd_ChangePic_Click()
 End Sub
 
 Private Sub Cmd_Delete_Click()
-    Dim Str_Id As String
-    
-    If Not Lst_List.Enabled Or Lst_List.ListCount <= 0 Or Lst_List.ListIndex <= -1 Then Exit Sub
-    If Shift <> 0 Or KeyCode <> vbKeyDelete Then Exit Sub
-    If QuestionMsg("Are you sure?") = vbNo Then Exit Sub
-    
-    Str_Id = Split(Lst_List.List(Lst_List.ListIndex), "-")(0)
-    
-    ExecuteOnDB "DELETE FROM Authors WHERE ID = " & Str_Id
-    
-    InfoMsg "Data excluded successfully!"
-    
-    PopulateList
+    Delete
 End Sub
 
 Private Sub Cmd_New_Click()
@@ -234,6 +223,9 @@ End Sub
 
 Private Sub PopulateList()
     
+    LoadBlankProfilePicture
+    Txt_ID = ""
+    Txt_Name = ""
     Lst_List.Clear
     
     SelectOnDB "SELECT * FROM Authors", Ado_List
@@ -241,6 +233,9 @@ Private Sub PopulateList()
     With Ado_List
         If Not .EOF Then
             Do While Not .EOF
+                If Not IsNull(.Fields("Picture")) Then
+                    LoadPictureFromDB Ado_List, False
+                End If
                 Lst_List.AddItem .Fields(0) & "-" & .Fields(1)
                 .MoveNext
             Loop
@@ -278,7 +273,7 @@ Private Sub LoadBlankProfilePicture()
     Img_ProfilePicture.Picture = LoadPicture(ProjectDirPath & "\Icons\blank-profile-picture.bmp")
 End Sub
 
-Private Sub LoadPictureFromDB(Ado_List As ADODB.Recordset)
+Private Sub LoadPictureFromDB(Ado_List As ADODB.Recordset, Optional Bol_ReplaceImageControlPicture As Boolean = True)
     Dim Str_ImageFilePath As String
     Set strStream = New ADODB.Stream
     strStream.Type = adTypeBinary
@@ -293,7 +288,10 @@ Private Sub LoadPictureFromDB(Ado_List As ADODB.Recordset)
     End If
     
     strStream.SaveToFile Str_ImageFilePath, adSaveCreateOverWrite
-    Img_ProfilePicture.Picture = LoadPicture(Str_ImageFilePath)
+    
+    If Bol_ReplaceImageControlPicture Then
+        Img_ProfilePicture.Picture = LoadPicture(Str_ImageFilePath)
+    End If
 End Sub
 
 Private Sub SavePictureToDB(Str_TableName As String, Str_Id As String)
@@ -301,7 +299,9 @@ Private Sub SavePictureToDB(Str_TableName As String, Str_Id As String)
     Dim mystream As ADODB.Stream
     Dim Ado_Table As ADODB.Recordset
     Dim Str_Query As String
-    
+    Dim Str_FileName As String
+    Dim Str_TempImageFilePath As String
+            
     If Str_Id = "" Then
         Str_Query = "SELECT MAX(Id) Id FROM " & Str_TableName
          SelectOnDB Str_Query, Ado_Table
@@ -314,12 +314,30 @@ Private Sub SavePictureToDB(Str_TableName As String, Str_Id As String)
          End With
          Set Ado_Table = Nothing
     End If
+       
+    Str_TempImageFilePath = TempImagesDirPath & Str_Id & ".bmp"
+    
+    If Dir(CommonDialog1.FileName) = "" And Dir(Str_TempImageFilePath) = "" Then
+        Exit Sub
+    End If
+    
+    Str_FileName = ""
+    
+    If Dir(CommonDialog1.FileName) <> "" Then
+        Str_FileName = CommonDialog1.FileName
+    ElseIf Dir(Str_TempImageFilePath) <> "" Then
+        Str_FileName = Str_TempImageFilePath
+    End If
+    
+    If Str_FileName = "" Then
+        Exit Sub
+    End If
     
     Set mystream = New ADODB.Stream
     mystream.Type = adTypeBinary
     SelectOnDB "SELECT * FROM " & Str_TableName & " WHERE Id = " & Str_Id, rs
     mystream.Open
-    mystream.LoadFromFile TempImagesDirPath & Str_Id & ".bmp"
+    mystream.LoadFromFile Str_FileName
     rs("Picture") = mystream.Read
     rs.Update
     mystream.Close
@@ -342,4 +360,34 @@ Private Sub LoadAuthorData()
             End If
         End If
     End With
+End Sub
+
+Private Sub Delete()
+    Dim Str_Id As String
+    Dim Str_TempImageFilePath As String
+    
+    If Not Lst_List.Enabled Or Lst_List.ListCount <= 0 Or Lst_List.ListIndex <= -1 Then Exit Sub
+    If QuestionMsg("Are you sure?") = vbNo Then Exit Sub
+    
+    Cmd_Delete.Enabled = False
+    
+    Str_Id = Split(Lst_List.List(Lst_List.ListIndex), "-")(0)
+    
+    ExecuteOnDB "DELETE FROM Authors WHERE ID = " & Str_Id
+    
+    Str_TempImageFilePath = TempImagesDirPath & Str_Id & ".bmp"
+    
+    If Dir(Str_TempImageFilePath) <> "" Then
+        Kill Str_TempImageFilePath
+    End If
+    
+    InfoMsg "Data excluded successfully!"
+    
+    PopulateList
+End Sub
+
+Private Sub Lst_List_KeyDown(KeyCode As Integer, Shift As Integer)
+    If Not (Shift = 0 And KeyCode = vbKeyDelete) Then Exit Sub
+    
+    Delete
 End Sub
