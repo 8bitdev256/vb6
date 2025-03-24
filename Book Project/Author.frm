@@ -7,6 +7,7 @@ Begin VB.Form Author
    ClientTop       =   450
    ClientWidth     =   4635
    LinkTopic       =   "Form1"
+   LockControls    =   -1  'True
    MDIChild        =   -1  'True
    ScaleHeight     =   5745
    ScaleWidth      =   4635
@@ -24,13 +25,13 @@ Begin VB.Form Author
          _Version        =   393216
       End
       Begin VB.CommandButton Cmd_ChangePic 
-         Caption         =   "Change"
+         Caption         =   "..."
          Enabled         =   0   'False
          Height          =   375
          Left            =   3000
          TabIndex        =   10
          Top             =   1440
-         Width           =   735
+         Width           =   375
       End
       Begin VB.ListBox Lst_List 
          Height          =   1425
@@ -279,12 +280,12 @@ Private Sub LoadPictureFromDB(Ado_List As ADODB.Recordset, Optional Bol_ReplaceI
     strStream.Type = adTypeBinary
     strStream.Open
     
-    Str_ImageFilePath = TempImagesDirPath & Ado_List("Id") & ".bmp"
+    Str_ImageFilePath = TempAuthorImagesDirPath & Ado_List("Id") & ".bmp"
     
     strStream.Write Ado_List.Fields("Picture").Value
     
-    If Dir(TempImagesDirPath, vbDirectory) = "" Then
-        MkDir TempImagesDirPath
+    If Dir(TempAuthorImagesDirPath, vbDirectory) = "" Then
+        MkDir TempAuthorImagesDirPath
     End If
     
     strStream.SaveToFile Str_ImageFilePath, adSaveCreateOverWrite
@@ -315,7 +316,7 @@ Private Sub SavePictureToDB(Str_TableName As String, Str_Id As String)
          Set Ado_Table = Nothing
     End If
        
-    Str_TempImageFilePath = TempImagesDirPath & Str_Id & ".bmp"
+    Str_TempImageFilePath = TempAuthorImagesDirPath & Str_Id & ".bmp"
     
     If Dir(CommonDialog1.FileName) = "" And Dir(Str_TempImageFilePath) = "" Then
         Exit Sub
@@ -375,7 +376,7 @@ Private Sub Delete()
     
     ExecuteOnDB "DELETE FROM Authors WHERE ID = " & Str_Id
     
-    Str_TempImageFilePath = TempImagesDirPath & Str_Id & ".bmp"
+    Str_TempImageFilePath = TempAuthorImagesDirPath & Str_Id & ".bmp"
     
     If Dir(Str_TempImageFilePath) <> "" Then
         Kill Str_TempImageFilePath

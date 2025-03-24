@@ -1,7 +1,11 @@
 Attribute VB_Name = "Mod_File"
 
-Public Property Get TempImagesDirPath() As String
-    TempImagesDirPath = ProjectDirPath & "TempImages\"
+Public Property Get TempAuthorImagesDirPath() As String
+    TempImagesDirPath = ProjectDirPath & "TempImages\Authors\"
+End Property
+
+Public Property Get TempBookImagesDirPath() As String
+    TempImagesDirPath = ProjectDirPath & "TempImages\Books\"
 End Property
 
 Public Function ReadFile(Str_FilePath As String) As String

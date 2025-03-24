@@ -10,6 +10,7 @@ Module=Mod_File; Mod_File.bas
 Module=Mod_Forms; Mod_Forms.bas
 Class=Cls_DBConfig; Cls_DBConfig.cls
 Form=Author.frm
+Form=Book.frm
 Startup="MDIMain"
 HelpFile=""
 ExeName32="Project1.exe"

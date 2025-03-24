@@ -17,6 +17,9 @@ Begin VB.MDIForm MDIMain
       Begin VB.Menu RegistrationAuthor 
          Caption         =   "Author"
       End
+      Begin VB.Menu RegistrationBook 
+         Caption         =   "Book"
+      End
    End
 End
 Attribute VB_Name = "MDIMain"
@@ -49,6 +52,10 @@ End Sub
 
 Private Sub RegistrationAuthor_Click()
     Author.Show
+End Sub
+
+Private Sub RegistrationBook_Click()
+    Book.Show
 End Sub
 
 Private Sub RegistrationGenre_Click()
