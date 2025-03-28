@@ -313,7 +313,7 @@ Private Sub Cmd_Save_Click()
 End Sub
 
 Private Sub Form_Load()
-    CenterForm Me, 4800, 6255
+    CenterForm Me, 9945, 11400
     
     LoadBlankProfilePicture
     
@@ -375,21 +375,41 @@ ErrorHandler:
 End Sub
 
 Private Sub PopulateList()
+    Dim Str_Query As String
+    Dim Str_Book As String
     
     LoadBlankProfilePicture
     Txt_ID = ""
     Txt_Name = ""
     Lst_List.Clear
+       
+    Str_Query = "" _
+    & "SELECT" _
+    & vbNewLine & "b.Id BookID, b.Name BookName, b.Price BookPrice, b.Picture BookPicture," _
+    & vbNewLine & "a.Id AuthorID, a.Name AuthorName, a.Picture AuthorPicture," _
+    & vbNewLine & "g.Id GenreID, g.Name GenreName" _
+    & vbNewLine & "FROM Books b" _
+    & vbNewLine & "INNER JOIN Authors a ON b.AuthorId = a.Id" _
+    & vbNewLine & "INNER JOIN Genres g ON b.GenreId = g.Id"
     
-    SelectOnDB "SELECT b.Id, b.Name, b.Price, b.Picture FROM Books", Ado_List
+    SelectOnDB Str_Query, Ado_List
     
     With Ado_List
         If Not .EOF Then
             Do While Not .EOF
+                Str_Book = "" _
+                & .Fields("BookID") _
+                & "-" & .Fields("BookName") _
+                & "-" & .Fields("BookPrice") _
+                & "-" & .Fields("AuthorID") _
+                & "-" & .Fields("AuthorName") _
+                & "-" & .Fields("GenreID") _
+                & "-" & .Fields("GenreName")
+                
                 If Not IsNull(.Fields("Picture")) Then
                     LoadPictureFromDB Ado_List, False
                 End If
-                Lst_List.AddItem .Fields(0) & "-" & .Fields(1)
+                Lst_List.AddItem Str_Book
                 .MoveNext
             Loop
         End If
@@ -423,7 +443,7 @@ Private Sub Lst_List_DblClick()
 End Sub
 
 Private Sub LoadBlankProfilePicture()
-    Img_Book.Picture = LoadPicture(ProjectDirPath & "\Icons\blank-profile-picture.bmp")
+    Img_BookImage.Picture = LoadPicture(ProjectDirPath & "Icons\blank-profile-picture.bmp")
 End Sub
 
 Private Sub LoadPictureFromDB(Ado_List As ADODB.Recordset, Optional Bol_ReplaceImageControlPicture As Boolean = True)
